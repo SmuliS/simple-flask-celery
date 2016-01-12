@@ -1,9 +1,8 @@
 import os
 
 from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
 
-db = SQLAlchemy()
+from app.extensions import db
 
 class Application(Flask):
     def __init__(self, environment=None):
@@ -14,6 +13,7 @@ class Application(Flask):
 
 
     def _init_configuration(self):
+        self.config['DEBUG'] = True
         self.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
         self.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get(
             'DATABASE_URL',
@@ -24,27 +24,5 @@ class Application(Flask):
         db.init_app(self)
 
     def _init_views(self):
-        return
-        @self.route("/")
-        def hello():
-            return "Hello World!"
-
-
-        @application.route("/tasks")
-        def tasks():
-            return str(Task.query.all())
-
-
-
-
-class Task(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String(80))
-    description = db.Column(db.String(256))
-
-    def __init__(self, title, description):
-        self.title = title
-        self.description = description
-
-    def __repr__(self):
-        return '<Task %r>' % self.title
+        from .views.example import example
+        self.register_blueprint(example, url_prefix='/')
